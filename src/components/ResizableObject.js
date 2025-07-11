@@ -41,13 +41,13 @@ const ResizableObject = () => {
       <Form.Group controlId="formImage" className="mb-2">
         <Form.Control type="file" accept="image/*" onChange={handleImageChange} />
       </Form.Group>
-      <div
+    <div
         className="resizable-object border position-relative d-inline-block"
         style={{ width, height }}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
         {image && (
           <img src={image} alt="Resizable" style={{ width: '100%', height: '100%' }} />
         )}
@@ -56,7 +56,7 @@ const ResizableObject = () => {
           style={{ position: 'absolute', width: 14, height: 14, bottom: 0, right: 0, cursor: 'se-resize', borderRadius: 3 }}
           onMouseDown={handleMouseDown}
         />
-      </div>
+    </div>
     </Card>
   );
 };

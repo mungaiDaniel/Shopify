@@ -48,7 +48,7 @@ const FileUpload = () => {
             style={{ width: size, height: 'auto', border: '1px solid #ccc', marginTop: 10 }}
           />
           <div className="text-muted">Scroll to zoom</div>
-        </div>
+    </div>
       )}
     </Card>
   );

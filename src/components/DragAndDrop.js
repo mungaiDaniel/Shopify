@@ -23,14 +23,14 @@ const DragAndDrop = () => {
         {showLines ? 'Hide Lines' : 'Show Lines'}
       </Button>
       <div {...getRootProps({ className: showLines ? 'dropzone with-lines' : 'dropzone' })} style={{ border: '2px dashed #61dafb', borderRadius: 10, padding: 20, textAlign: 'center' }}>
-        <input {...getInputProps()} />
+      <input {...getInputProps()} />
         <p className="text-muted">Drag 'n' drop some files here, or click to select files</p>
         <ul className="list-unstyled">
-          {files.map((file, index) => (
-            <li key={index}>{file.name}</li>
-          ))}
-        </ul>
-      </div>
+        {files.map((file, index) => (
+          <li key={index}>{file.name}</li>
+        ))}
+      </ul>
+    </div>
     </Card>
   );
 };

@@ -1,25 +1,26 @@
-import React, { useState, useCallback } from 'react';
-import { Form, Button, Card, Row, Col, InputGroup, Dropdown } from 'react-bootstrap';
-import { useDropzone } from 'react-dropzone';
-import { FaTrash, FaPlus, FaImage, FaEye, FaMinus, FaPlusCircle } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { Form, Button, Card, Row, Col, InputGroup } from 'react-bootstrap';
+import DraggableEditable from '../../components/DraggableEditable';
+import { FaTrash, FaPlus, FaImage } from 'react-icons/fa';
 
 export default function AddProduct() {
   // Form state
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [media, setMedia] = useState([]);
-  const [showLines, setShowLines] = useState(false);
-  const [mediaSize, setMediaSize] = useState(200);
   const [elements, setElements] = useState([
     { type: 'button', label: 'Sample Button', color: '#212b36' },
     { type: 'image', src: '', color: '#fff' },
   ]);
 
-  // Drag and drop
-  const onDrop = useCallback((acceptedFiles) => {
-    setMedia((prev) => [...prev, ...acceptedFiles.map(file => Object.assign(file, { preview: URL.createObjectURL(file) }))]);
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  // Add new media
+  const handleAddMedia = (file) => {
+    setMedia((prev) => [...prev, file]);
+  };
+  // Remove media
+  const handleRemoveMedia = (idx) => setMedia(media.filter((_, i) => i !== idx));
+  // Replace media
+  const handleReplaceMedia = (idx, file) => setMedia(media.map((m, i) => i === idx ? file : m));
 
   // Remove element
   const removeElement = (idx) => setElements(elements.filter((_, i) => i !== idx));
@@ -29,12 +30,6 @@ export default function AddProduct() {
   const replaceWithFile = (idx, file) => {
     const url = URL.createObjectURL(file);
     setElements(elements.map((el, i) => i === idx ? { ...el, type: 'image', src: url } : el));
-  };
-
-  // Media zoom
-  const handleWheel = (e) => {
-    e.preventDefault();
-    setMediaSize((prev) => Math.max(50, prev + (e.deltaY < 0 ? 20 : -20)));
   };
 
   return (
@@ -54,33 +49,43 @@ export default function AddProduct() {
                   <Form.Control as="textarea" rows={4} value={description} onChange={e => setDescription(e.target.value)} />
                 </Form.Group>
                 <Form.Group className="mb-3">
-                  <Form.Label>Media</Form.Label>
-                  <div className="mb-2">
-                    <Button size="sm" variant={showLines ? 'secondary' : 'outline-secondary'} onClick={() => setShowLines(v => !v)} className="me-2">{showLines ? 'Hide lining' : 'Show lining'}</Button>
-                  </div>
-                  <div {...getRootProps({ className: showLines ? 'dropzone with-lines' : 'dropzone' })} style={{ border: showLines ? '2px dashed #61dafb' : '2px dashed #ccc', borderRadius: 10, padding: 24, background: '#fafbfc', textAlign: 'center', marginBottom: 12 }}>
-                    <input {...getInputProps()} />
-                    {isDragActive ? <p>Drop files here...</p> : <p>Upload new / Select existing<br /><span style={{ fontSize: 13, color: '#888' }}>Accepts images, videos, or 3D models</span></p>}
-                  </div>
-                  <div className="d-flex flex-wrap gap-3">
-                    {media.map((file, idx) => (
-                      <div key={idx} style={{ position: 'relative', display: 'inline-block' }}>
-                        <img
-                          src={file.preview}
-                          alt="media"
-                          style={{ width: mediaSize, height: 'auto', borderRadius: 8, border: '1px solid #eee', marginBottom: 4 }}
-                          onWheel={handleWheel}
-                        />
-                        <Button size="sm" variant="danger" style={{ position: 'absolute', top: 4, right: 4, borderRadius: 20, padding: 2 }} onClick={() => setMedia(media.filter((_, i) => i !== idx))}><FaTrash /></Button>
-                        <div className="text-center" style={{ fontSize: 12 }}>Scroll to zoom</div>
+                  <Form.Label>Upload and size files</Form.Label>
+                  <div style={{ width: '100%', maxWidth: '100%', marginBottom: 16 }}>
+                    <DraggableEditable
+                      allowedTypes="image/*,video/*"
+                      onChange={file => handleAddMedia(file)}
+                      showRemove={false}
+                      showReplace={false}
+                      showZoom={false}
+                      showGuidesToggle={true}
+                    >
+                      <div style={{ color: '#888', fontSize: 15, padding: 16 }}>
+                        <FaImage style={{ fontSize: 32, opacity: 0.3 }} />
+                        <div>Drag and drop or click to upload files to size<br /><span style={{ fontSize: 13, color: '#888' }}>Accepts images, videos, or 3D models</span></div>
                       </div>
+                    </DraggableEditable>
+                  </div>
+                  <div className="d-flex flex-wrap gap-3" style={{ width: '100%', maxWidth: '100%' }}>
+                    {media.map((file, idx) => (
+                      <DraggableEditable
+                        key={idx}
+                        initialFile={file}
+                        allowedTypes="image/*,video/*"
+                        onChange={f => handleReplaceMedia(idx, f)}
+                        onRemove={() => handleRemoveMedia(idx)}
+                        showRemove={true}
+                        showReplace={true}
+                        showGuidesToggle={true}
+                        showZoom={true}
+                        style={{ width: 320, minHeight: 180 }}
+                      />
                     ))}
                   </div>
                 </Form.Group>
                 {/* Example: Element management */}
                 <Form.Group className="mb-3">
                   <Form.Label>Demo: Manage elements</Form.Label>
-                  <div className="d-flex flex-wrap gap-3">
+                  <div className="d-flex flex-wrap gap-3 ">
                     {elements.map((el, idx) => (
                       <div key={idx} style={{ background: '#f3f4f6', borderRadius: 8, padding: 12, minWidth: 120, textAlign: 'center', color: el.color }}>
                         {el.type === 'button' ? (
